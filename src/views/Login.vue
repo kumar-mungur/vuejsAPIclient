@@ -4,11 +4,22 @@
       <div class="container">
         <div class="row justify-content-md-center">
           <div class="col text-center">
+
             <form
               class="form-signin"
               v-on:submit.prevent="login"
             >
               <p class="mb-5"><span class="text-logo">Notes</span></p>
+
+              <ul
+                v-if="validationErrors.length"
+                class="alert alert-danger form-errors"
+              >
+                <li
+                  v-for="(validationError, index) in validationErrors"
+                  v-bind:key="index"
+                >{{validationError}}</li>
+              </ul>
 
               <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
               <label
@@ -22,7 +33,6 @@
                 v-model="username"
                 class="form-control"
                 placeholder="Email address"
-                required
                 autofocus
                 autocomplete="on"
               >
@@ -37,7 +47,6 @@
                 v-model="password"
                 class="form-control"
                 placeholder="Password"
-                required
                 autocomplete="on"
               >
 
@@ -55,26 +64,44 @@
 </template>
 
 <script>
-
+import formErrorHandler from '../mixins/formErrorHandler'
 export default {
+  mixins: [formErrorHandler],
   data () {
     return {
       username: "",
-      password: ""
+      password: "",
+      validationErrors: [
+
+      ]
     };
   },
   methods: {
     login: function () {
-      this.$store.dispatch("retrieveToken", {
-        username: this.username,
-        password: this.password
-      })
-        .then((response) => {
-          this.$router.push({ name: 'dashboard' })
+      this.validationErrors = []
+
+      if (!this.username) {
+        this.validationErrors.push("Username is required.")
+      }
+
+      if (!this.password) {
+        this.validationErrors.push("Password is required.")
+      }
+
+      if (!this.validationErrors.length) {
+        this.$store.dispatch("retrieveToken", {
+          username: this.username,
+          password: this.password
         })
-        .catch((error) => {
-          console.log(error)
-        });
+          .then((response) => {
+            this.$router.push({ name: 'dashboard' })
+          })
+          .catch((error) => {
+
+            this.errorHandler(error, this.validationErrors)
+
+          });
+      }
     }
   },
   mounted () { }
@@ -119,5 +146,9 @@ export default {
   width: 50px;
   height: 50px;
   padding: 10px;
+}
+.form-errors li {
+  margin-left: 10px;
+  text-align: left;
 }
 </style>

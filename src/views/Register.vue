@@ -10,6 +10,15 @@
             >
               <p class="mb-5"><span class="text-logo">Notes</span></p>
 
+              <ul
+                v-if="validationErrors.length"
+                class="alert alert-danger form-errors"
+              >
+                <li
+                  v-for="(validationError, index) in validationErrors"
+                  v-bind:key="index"
+                >{{validationError}}</li>
+              </ul>
               <h1 class="h3 mb-3 font-weight-normal">Please register</h1>
               <label
                 for="inputName"
@@ -20,7 +29,6 @@
                 id="inputName"
                 class="form-control"
                 placeholder="Name"
-                required
                 autofocus
                 v-model="name"
               >
@@ -33,7 +41,6 @@
                 id="inputEmail"
                 class="form-control"
                 placeholder="Email address"
-                required
                 autofocus
                 v-model="email"
               >
@@ -46,7 +53,6 @@
                 id="inputPassword"
                 class="form-control"
                 placeholder="Password"
-                required
                 autocomplete="off"
                 v-model="password"
               >
@@ -64,28 +70,48 @@
 </template>
 
 <script>
-
+import formErrorHandler from '../mixins/formErrorHandler'
 export default {
+  mixins: [formErrorHandler],
   data () {
     return {
       name: "",
       email: "",
-      password: ""
+      password: "",
+      validationErrors: [
+
+      ]
     };
   },
   methods: {
     register: function () {
-      this.$store.dispatch("registerUser", {
-        name: this.name,
-        email: this.email,
-        password: this.password
-      })
-        .then((response) => {
-          this.$router.push({ name: 'login' })
+      this.validationErrors = []
+
+      if (!this.name) {
+        this.validationErrors.push("Name is required.")
+      }
+
+      if (!this.email) {
+        this.validationErrors.push("Email is required.")
+      }
+
+      if (!this.password) {
+        this.validationErrors.push("Password is required.")
+      }
+
+      if (!this.validationErrors.length) {
+        this.$store.dispatch("registerUser", {
+          name: this.name,
+          email: this.email,
+          password: this.password
         })
-        .catch((error) => {
-          console.log(error)
-        });
+          .then((response) => {
+            this.$router.push({ name: 'login' })
+          })
+          .catch((error) => {
+            this.errorHandler(error, this.validationErrors)
+          });
+      }
     }
   }
 };
@@ -133,5 +159,9 @@ export default {
   width: 50px;
   height: 50px;
   padding: 10px;
+}
+.form-errors li {
+  margin-left: 10px;
+  text-align: left;
 }
 </style>

@@ -6,6 +6,15 @@
     >
       <div class="col col-12 col-md-6">
         <ul
+          v-if="validationErrors.length"
+          class="alert alert-danger form-errors"
+        >
+          <li
+            v-for="(validationError, index) in validationErrors"
+            v-bind:key="index"
+          >{{validationError}}</li>
+        </ul>
+        <ul
           class="nav nav-pills mb-3"
           id="pills-tab"
           role="tablist"
@@ -144,7 +153,9 @@
 import { mapState } from "vuex";
 import ThemePicker from "./ThemePicker.vue";
 import HomeLink from "./HomeLink.vue";
+import formErrorHandler from '../mixins/formErrorHandler'
 export default {
+  mixins: [formErrorHandler],
   components: {
     "theme-picker": ThemePicker,
     "home-link": HomeLink
@@ -165,6 +176,9 @@ export default {
     return {
       id: this.$route.params.id,
       note: {},
+      validationErrors: [
+
+      ]
     };
   },
   methods: {
@@ -186,13 +200,36 @@ export default {
       this.$router.push({ name: "viewNote", params: this.id });
     },
     updateNote: function () {
-      this.$store.dispatch("updateNote", this.note)
-        .then(() => {
-          this.$store.dispatch("notify", {
-            type: "success",
-            message: "Note changed successfully!"
+      this.validationErrors = []
+
+      if (!this.note.title) {
+        this.validationErrors.push("Title is required.")
+      }
+
+      if (!this.note.body) {
+        this.validationErrors.push("Body is required.")
+      }
+
+      if (!this.note.theme) {
+        this.validationErrors.push("Theme is required.")
+      }
+
+
+      if (!this.validationErrors.length) {
+        this.$store.dispatch("updateNote", this.note)
+          .then(() => {
+            this.$store.dispatch("notify", {
+              type: "success",
+              message: "Note changed successfully!"
+            });
+          })
+          .catch((error) => {
+
+            this.errorHandler(error, this.validationErrors)
+
           });
-        });
+      }
+
     }
   },
   created () {
@@ -210,4 +247,7 @@ export default {
 </script>
 
 <style scoped>
+.form-errors li {
+  margin-left: 10px;
+}
 </style>

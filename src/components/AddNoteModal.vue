@@ -41,7 +41,15 @@
               </button>
             </div>
             <div class="modal-body">
-
+              <ul
+                v-if="validationErrors.length"
+                class="alert alert-danger form-errors"
+              >
+                <li
+                  v-for="(validationError, index) in validationErrors"
+                  v-bind:key="index"
+                >{{validationError}}</li>
+              </ul>
               <ul
                 class="nav nav-pills mb-3"
                 id="pills-tab"
@@ -147,7 +155,6 @@
                         {{note.title}}
                       </h5>
                       <p class="card-text">{{note.body}}</p>
-                      <p>User ID: {{note.user_id}} | Note ID: </p>
                     </div>
                   </div>
                 </div>
@@ -179,7 +186,9 @@
 import { mapState } from "vuex";
 import ThemePicker from "./ThemePicker.vue";
 import ModalOverlay from "./ModalOverlay.vue";
+import formErrorHandler from '../mixins/formErrorHandler'
 export default {
+  mixins: [formErrorHandler],
   components: {
     "theme-picker": ThemePicker,
     "modal-overlay": ModalOverlay
@@ -189,9 +198,11 @@ export default {
       note: {
         title: "",
         body: "",
-        user_id: null,
         theme: ""
-      }
+      },
+      validationErrors: [
+
+      ]
     };
   },
   computed: {
@@ -211,15 +222,36 @@ export default {
       this.note.theme = theme;
     },
     saveNote: function () {
-      this.$store.dispatch("saveNote", this.note)
-        .then(() => {
-          this.note = {}
-          this.$store.dispatch("notify", {
-            type: "success",
-            message: "New note added successfully!"
+      this.validationErrors = []
+
+      if (!this.note.title) {
+        this.validationErrors.push("Title is required.")
+      }
+
+      if (!this.note.body) {
+        this.validationErrors.push("Body is required.")
+      }
+
+      if (!this.note.theme) {
+        this.validationErrors.push("Theme is required.")
+      }
+
+      if (!this.validationErrors.length) {
+        this.$store.dispatch("saveNote", this.note)
+          .then(() => {
+            this.note = {}
+            this.$store.dispatch("notify", {
+              type: "success",
+              message: "New note added successfully!"
+            });
+            this.$router.push({ name: "userNotes" })
+          })
+          .catch((error) => {
+
+            this.errorHandler(error, this.validationErrors)
+
           });
-          this.$router.push({ name: "userNotes" })
-        });
+      }
     }
   }
 };
@@ -229,5 +261,8 @@ export default {
 .add-modal {
   margin-top: 10%;
   display: block;
+}
+.form-errors li {
+  margin-left: 10px;
 }
 </style>
