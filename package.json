@@ -1,6 +1,9 @@
 {
   "name": "vuejsapiclient",
-  "version": "0.1.0",
+  "author": "Vurghus Minar <vurghus.minar@outlook.com>",
+  "license": "MIT",
+  "version": "1.0.0",
+  "repository": "https://github.com/vurghus-minar/vuejsAPIclient.git",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
