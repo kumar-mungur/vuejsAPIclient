@@ -186,7 +186,7 @@
 import { mapState } from "vuex";
 import ThemePicker from "./ThemePicker.vue";
 import ModalOverlay from "./ModalOverlay.vue";
-import formErrorHandler from '../mixins/formErrorHandler'
+import formErrorHandler from '../mixins/formErrorHandler';
 export default {
   mixins: [formErrorHandler],
   components: {
