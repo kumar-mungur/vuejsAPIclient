@@ -1,5 +1,9 @@
 ## VueJS API Client Demo
 
+  <span style="font-family:Georgia; text-align:center; font-size:2em;">
+    <a href="https://vuenotes.a-sandbox.com">Check out the live demo</a>
+  </span>
+
 ### About
 
 This is a [VueJS](https://vuejs.org) API client demo.
