@@ -1,7 +1,7 @@
 <template>
   <main role="main">
 
-    <div class="notes py-5 bg-light">
+    <div class="notes py-5">
       <div class="container">
         <div class="row">
           <div class="col">

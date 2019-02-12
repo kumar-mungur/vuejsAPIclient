@@ -12,6 +12,7 @@
           v-bind:to="'/'"
         >Home</router-link>
         <router-link
+          v-on="openEditNote"
           class="btn btn-secondary"
           v-bind:to="'/note/edit/' + note.id"
         >Edit</router-link>
@@ -90,13 +91,17 @@ export default {
     fetchNote: function (id) {
       this.$store.dispatch("fetchNote", id).then(response => {
         this.note = response.data.data;
-        if (this.note.user_id === this.getUserId) {
+        const noteId = parseInt(this.note.user_id)
+        if (noteId === this.getUserId) {
           this.belongsToUser = true
         } else {
           this.belongsToUser = false
         }
-        this.$store.dispatch("dataReady")
+        this.$store.dispatch("dataReady", true)
       });
+    },
+    openEditNote: function () {
+      this.$store.dispatch("dataReady", false)
     },
     openDeleteNote: function (id) {
       this.$store.dispatch('openDeleteNote', id)
@@ -116,11 +121,14 @@ export default {
         });
     }
   },
+  beforeCreate () {
+    this.$store.dispatch('dataReady', false)
+  },
   mounted () {
     this.fetchNote(this.id);
   },
   updated () {
-
+    this.$store.dispatch("hideLoader");
   }
 };
 </script>

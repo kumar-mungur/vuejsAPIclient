@@ -29,6 +29,12 @@
           role="document"
         >
           <div class="modal-content">
+            <div
+              v-if="processSave"
+              class="modal-process-spinner"
+            >
+              <div class="lds-dual-ring"></div>
+            </div>
             <div class="modal-header">
               <h5 class="modal-title">Create new note</h5>
               <button
@@ -202,7 +208,8 @@ export default {
       },
       validationErrors: [
 
-      ]
+      ],
+      processSave: false
     };
   },
   computed: {
@@ -217,6 +224,11 @@ export default {
     },
     closeAddNote: function () {
       this.$store.dispatch("closeAddNote");
+      this.note = {
+        title: "",
+        body: "",
+        theme: ""
+      }
     },
     applyTheme: function (theme) {
       this.note.theme = theme;
@@ -237,14 +249,22 @@ export default {
       }
 
       if (!this.validationErrors.length) {
+        this.processSave = true
         this.$store.dispatch("saveNote", this.note)
           .then(() => {
-            this.note = {}
+            this.note = {
+              title: "",
+              body: "",
+              theme: ""
+            }
             this.$store.dispatch("notify", {
               type: "success",
               message: "New note added successfully!"
             });
             this.$router.push({ name: "userNotes" })
+            this.$store.dispatch("userDataPresent", 1)
+            this.processSave = false
+            this.$store.dispatch("hideLoader");
           })
           .catch((error) => {
 
@@ -262,6 +282,41 @@ export default {
   margin-top: 10%;
   display: block;
 }
+.modal-process-spinner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #444;
+  z-index: 999999;
+  opacity: 0.5;
+}
+
+.lds-dual-ring {
+  width: 64px;
+  height: 64px;
+  margin: 30% auto;
+  display: block;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 46px;
+  height: 46px;
+  margin: 1px;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .form-errors li {
   margin-left: 10px;
 }

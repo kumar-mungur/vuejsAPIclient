@@ -185,10 +185,11 @@ export default {
     fetchNote: function (id) {
       this.$store.dispatch("fetchNote", id).then(response => {
         this.note = response.data.data;
-        if (this.note.user_id !== this.getUserId) {
+        const noteId = parseInt(this.note.user_id)
+        if (noteId !== this.getUserId) {
           this.$router.push({ name: 'viewNote', params: this.id })
         } else {
-          this.$store.dispatch('dataReady')
+          this.$store.dispatch('dataReady', true)
         }
       })
     },
@@ -196,6 +197,7 @@ export default {
       this.note.theme = theme;
     },
     cancelEditNote: function () {
+      this.$store.dispatch('dataReady', false)
       this.$store.dispatch("cancelEditNote");
       this.$router.push({ name: "viewNote", params: this.id });
     },

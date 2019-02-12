@@ -11,6 +11,7 @@ export const store = new Vuex.Store({
     u: localStorage.getItem("u") || null,
     axios: {
       baseUrl: "http://notes.local/api"
+      //baseUrl: "https://laravel.a-sandbox.com/api"
     },
     themes: [
       "default",
@@ -44,6 +45,7 @@ export const store = new Vuex.Store({
     selectedIdForDeletion: null,
     showAddNoteModal: false,
     dataReady: false,
+    userDataPresent: 0,
     notes: {},
     userNotes: {},
     selectedNote: {},
@@ -76,7 +78,7 @@ export const store = new Vuex.Store({
     getUserId(state) {
       if (state.u !== null) {
         const user = JSON.parse(state.u);
-        return user.id;
+        return parseInt(user.id);
       }
       return null;
     },
@@ -84,6 +86,14 @@ export const store = new Vuex.Store({
       if (state.u !== null) {
         const user = JSON.parse(state.u);
         return user;
+      }
+      return null;
+    },
+    getUserName(state) {
+      if (state.u !== null) {
+        const user = JSON.parse(state.u);
+        const username = user.name;
+        return username;
       }
       return null;
     }
@@ -105,8 +115,11 @@ export const store = new Vuex.Store({
     fetchUserNotes(state, notes) {
       state.userNotes = notes;
     },
-    dataReady(state) {
-      state.dataReady = true;
+    dataReady(state, arg) {
+      state.dataReady = arg;
+    },
+    userDataPresent(state, arg) {
+      state.userDataPresent = arg;
     },
     saveNote(state) {
       state.showAddNoteModal = false;
@@ -313,7 +326,6 @@ export const store = new Vuex.Store({
             .get("/user/notes?page=" + page)
             .then(response => {
               context.commit("fetchUserNotes", response.data);
-              context.dispatch("hideLoader");
               resolve(response.data);
             })
             .catch(error => {
@@ -380,9 +392,7 @@ export const store = new Vuex.Store({
             })
             .then(response => {
               context.commit("saveNote");
-              context.dispatch("clearUserNotes");
               context.dispatch("fetchUserNotes");
-              context.dispatch("hideLoader");
               resolve(response);
             })
             .catch(error => {
@@ -499,8 +509,11 @@ export const store = new Vuex.Store({
         });
       }
     },
-    dataReady(context) {
-      context.commit("dataReady");
+    dataReady(context, arg) {
+      context.commit("dataReady", arg);
+    },
+    userDataPresent(context, arg) {
+      context.commit("userDataPresent", arg);
     },
     clearNotes(context) {
       context.commit("clearNotes");

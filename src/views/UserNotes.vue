@@ -1,7 +1,7 @@
 <template>
   <main role="main">
 
-    <div class="notes py-5 bg-light">
+    <div class="notes py-5">
       <div class="container">
         <div class="row">
           <div class="col">
@@ -14,11 +14,12 @@
         </div>
         <div class="row">
           <div
-            v-if="noData"
+            v-if="userDataPresent > 1"
             class="col"
           >
             <p class="text-center">There are currently no notes on record.</p>
           </div>
+
           <div
             v-for="note in notes.data"
             v-bind:key="note.id"
@@ -65,7 +66,7 @@ export default {
   },
   computed: {
     ...mapState({
-      dataReady: "dataReady",
+      userDataPresent: "userDataPresent",
       showDeleteConfirmationModal: "showDeleteConfirmationModal",
       notes: "userNotes",
       selectedNoteForDeletion: "selectedNoteForDeletion"
@@ -73,7 +74,6 @@ export default {
   },
   data () {
     return {
-      noData: false
     };
   },
   methods: {
@@ -81,9 +81,12 @@ export default {
       this.$store.dispatch("clearUserNotes")
       this.$store.dispatch("fetchUserNotes", page)
         .then((response) => {
-          if (response.data.length == 0) {
-            this.noData = true;
+          if (response.data.length === 0) {
+            this.$store.dispatch("userDataPresent", 2)
+          } else {
+            this.$store.dispatch("userDataPresent", 1)
           }
+          this.$store.dispatch("hideLoader");
         })
     },
     openDeleteUserNote: function (note) {
@@ -95,16 +98,19 @@ export default {
     deleteNote: function () {
       this.$store.dispatch('deleteNote', this.$store.state.selectedIdForDeletion)
         .then(() => {
-          this.$store.dispatch("fetchUserNotes");
+          this.$store.dispatch("notify", {
+            type: "success",
+            message: "Note successfully! deleted"
+          });
+          this.fetchUserNotes();
         })
     }
   },
   created () {
     this.fetchUserNotes();
-  },
-  mounted () {
-
   }
+
+
 };
 </script>
 

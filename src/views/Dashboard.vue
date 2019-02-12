@@ -1,7 +1,7 @@
 <template>
   <main role="main">
 
-    <div class="notes py-5 bg-light">
+    <div class="notes py-5">
       <div class="container">
         <div class="row">
           <div class="col col-lg-2">
@@ -21,7 +21,7 @@
               v-if="loggedIn"
               class="text-center"
             >
-              Welcome, <span>{{user.name}}</span>
+              Welcome<span>, {{username}}</span>
             </p>
             <ul
               v-if="loggedIn"
@@ -59,7 +59,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import HomeLink from "../components/HomeLink.vue";
 import changeCase from "../filters/changeCase";
 export default {
@@ -68,14 +67,12 @@ export default {
     "home-link": HomeLink
   },
   computed: {
-    ...mapState({
-      "user": "user"
-    }),
+
     loggedIn: function () {
       return this.$store.getters.loggedIn
     },
-    user: function () {
-      return this.$store.getters.getUser
+    username: function () {
+      return this.$store.getters.getUserName
     }
   },
   methods: {
